@@ -204,7 +204,7 @@ namespace FiatCoinNet.WalletGui
             {
                 int index = exchangePayFrom.SelectedIndex;
                 exchangeAccountCurrency.Text = m_Wallet.PaymentAccounts[index].CurrencyCode;
-                exchangePayTo.Text = "稍后我们会为您创建新的账户";
+                
             }
         }
 
@@ -561,7 +561,7 @@ namespace FiatCoinNet.WalletGui
             RemoveOldAddressForExchange(exchangePayFrom.SelectedValue.ToString());
 
             MessageBox.Show("兑换成功");
-            exchangePayTo.Text = destAccount;
+
 
             GetAccountBalances();
             this.UpdateAddressDataGrid();
@@ -640,7 +640,7 @@ namespace FiatCoinNet.WalletGui
 
         private void receiveCurrency_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            
         }
 
         private void btnSend_Click(object sender, RoutedEventArgs e)
@@ -655,15 +655,86 @@ namespace FiatCoinNet.WalletGui
 
         private void btnAddPayee_Click(object sender, RoutedEventArgs e)
         {
+            Grid dynamicGrid = new Grid();
+            dynamicGrid.ShowGridLines = true;
+            dynamicGrid.HorizontalAlignment = HorizontalAlignment.Left;
+
+            //Create Columns
+            ColumnDefinition gridCol1 = new ColumnDefinition();
+            ColumnDefinition gridCol2 = new ColumnDefinition();
+            dynamicGrid.ColumnDefinitions.Add(gridCol1);
+            dynamicGrid.ColumnDefinitions.Add(gridCol2);
+
+            //Create Rows
+            RowDefinition gridRow1 = new RowDefinition();
+            RowDefinition gridRow2 = new RowDefinition();
+            RowDefinition gridRow3 = new RowDefinition();
+            dynamicGrid.RowDefinitions.Add(gridRow1);
+            dynamicGrid.RowDefinitions.Add(gridRow2);
+            dynamicGrid.RowDefinitions.Add(gridRow3);
+
+            //First label
+            TextBlock textblock_Payto = new TextBlock();
+            textblock_Payto.SetResourceReference(TextBlock.TextProperty, "SEND_BUTTON_PAYTO");
+            textblock_Payto.HorizontalAlignment = HorizontalAlignment.Left;
+            Grid.SetRow(textblock_Payto, 0);
+            Grid.SetColumn(textblock_Payto, 0);
+            dynamicGrid.Children.Add(textblock_Payto);
+
+            //Second label
+            TextBlock textblock_Label = new TextBlock();
+            textblock_Label.SetResourceReference(TextBlock.TextProperty, "SEND_BUTTON_LABEL");
+            textblock_Label.HorizontalAlignment = HorizontalAlignment.Left;
+            Grid.SetRow(textblock_Label, 1);
+            Grid.SetColumn(textblock_Label, 0);
+            dynamicGrid.Children.Add(textblock_Label);
+
+            //Third label
+            TextBlock textblock_Amount = new TextBlock();
+            textblock_Amount.SetResourceReference(TextBlock.TextProperty, "SEND_BUTTON_AMOUNT");
+            textblock_Amount.HorizontalAlignment = HorizontalAlignment.Left;
+            Grid.SetRow(textblock_Amount, 2);
+            Grid.SetColumn(textblock_Amount, 0);
+            dynamicGrid.Children.Add(textblock_Amount);
+
+            //First TextBox
+            TextBox textbox_Payto = new TextBox();
+            textbox_Payto.Name = "Send_Payto";
+            textbox_Payto.HorizontalAlignment = HorizontalAlignment.Left;
+            Grid.SetRow(textbox_Payto, 0);
+            Grid.SetColumn(textbox_Payto, 1);
+            dynamicGrid.Children.Add(textbox_Payto);
+
+            //Second TextBox
+            TextBox textbox_Label = new TextBox();
+            textbox_Label.Name = "Send_Label";
+            textbox_Label.HorizontalAlignment = HorizontalAlignment.Left;
+            Grid.SetRow(textbox_Label, 1);
+            Grid.SetColumn(textbox_Label, 1);
+            dynamicGrid.Children.Add(textbox_Label);
+
+            //Third TextBox
+            TextBox textbox_Amount = new TextBox();
+            textbox_Amount.Name = "Send_Amount";
+            textbox_Amount.HorizontalAlignment = HorizontalAlignment.Left;
+            Grid.SetRow(textbox_Amount, 2);
+            Grid.SetColumn(textbox_Amount, 1);
+            dynamicGrid.Children.Add(textbox_Amount);
 
         }
 
+        //Generate a QR code for Uri
         private void btnShow_Click(object sender, RoutedEventArgs e)
         {
 
         }
 
         private void btnRemove_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnSelect_Click(object sender, RoutedEventArgs e)
         {
 
         }
