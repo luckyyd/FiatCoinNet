@@ -52,7 +52,7 @@ namespace FiatCoinNetWeb.DataAccess
             hlb.blockHeader.hashMerkleRoot = row.GetStringField("HashMerkleRoot");
             hlb.blockHeader.Time = row.GetIntField("Time");
             hlb.blockHeader.Bits = row.GetIntField("Bits");
-            hlb.LowLevelBlockCounter = row.GetIntField("LowLevelBlockCounter");
+            hlb.LowerLevelBlockCounter = row.GetIntField("LowLevelBlockCounter");
             //TO DO: Finish the code
 
             return hlb;

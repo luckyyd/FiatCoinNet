@@ -20,7 +20,7 @@ namespace FiatCoinNet.Domain
         public HigherLevelBlockHeader blockHeader { get; set; }
 
         [DataMember]
-        public int LowLevelBlockCounter { get; set; }
+        public int LowerLevelBlockCounter { get; set; }
 
         [DataMember]
         public List<LowerLevelBlock> LowerLevelBlockSet { get; set; }

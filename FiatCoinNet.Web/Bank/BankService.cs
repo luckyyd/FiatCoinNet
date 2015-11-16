@@ -33,20 +33,20 @@ namespace FiatCoinNetWeb.Controllers
                 return;
             //Construct high level block
             HigherLevelBlock block = new HigherLevelBlock();
-            block.LowLevelBlockCounter = 0;
+            block.LowerLevelBlockCounter = 0;
 
             //Construct the block header
             //block.blockHeader.hashPrevBlock = GetPreviousTransactionHash();
             block.blockHeader.Time = GetTime(DateTime.Now);
             block.blockHeader.Version = bank.version;
 
-            while (bank.s_LowerLevelBlockPool.Count != 0 && block.LowLevelBlockCounter < MAX_LOWERLEVELBLOCK)
+            while (bank.s_LowerLevelBlockPool.Count != 0 && block.LowerLevelBlockCounter < MAX_LOWERLEVELBLOCK)
             {
                 LowerLevelBlock llb = bank.s_LowerLevelBlockPool.Dequeue();
                 if (CheckingLedger(llb) == true)
                 {
                     block.LowerLevelBlockSet.Add(llb);
-                    block.LowLevelBlockCounter++;
+                    block.LowerLevelBlockCounter++;
                 }
             }
 

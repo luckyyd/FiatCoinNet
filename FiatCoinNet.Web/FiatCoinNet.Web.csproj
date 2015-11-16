@@ -76,6 +76,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -155,7 +156,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AiHandleErrorAttribute.cs" />
@@ -194,6 +194,7 @@
     <Compile Include="Bank\BankService.cs" />
     <Compile Include="Controllers\BankApiController.cs" />
     <Compile Include="Controllers\BankController.cs" />
+    <Compile Include="Controllers\BlockChainController.cs" />
     <Compile Include="Controllers\DownloadController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Issuer\IssuerService.cs" />
@@ -205,6 +206,14 @@
     <Compile Include="DataAccess\Implementation.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Model.cs">
+      <DependentUpon>Model.dbml</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Model.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Model.dbml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -243,6 +252,11 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
     <Content Include="ApplicationInsights.config" />
+    <Content Include="Models\Model.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>Model.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Properties\PublishProfiles\fiatcoinet %283%29.pubxml" />
     <None Include="Properties\PublishProfiles\fiatcoinet %284%29.pubxml" />
     <None Include="Properties\PublishProfiles\fiatcoinet.pubxml" />
@@ -275,6 +289,7 @@
     <Content Include="Views\Download\Index.cshtml" />
     <Content Include="Views\Principle\Index.cshtml" />
     <Content Include="Wallet.rar" />
+    <Content Include="Views\BlockChain\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FiatCoinNet.Common\FiatCoinNet.Common.csproj">
@@ -306,6 +321,14 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Models\Model.dbml.layout">
+      <DependentUpon>Model.dbml</DependentUpon>
+    </None>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
