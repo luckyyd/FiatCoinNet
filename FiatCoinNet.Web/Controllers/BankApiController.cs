@@ -63,8 +63,7 @@ namespace FiatCoinNetWeb.Controllers
         [Route("certifier/api/issuers")]
         public List<Issuer> GetCertifiedIssuers()
         {
-            return bankService.bank.CertifiedIssuers;
-            
+           return bankService.bank.CertifiedIssuers;
         }
 
         /// <summary>

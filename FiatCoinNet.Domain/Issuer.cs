@@ -47,7 +47,7 @@ namespace FiatCoinNet.Domain
         [DataMember]
         public ConcurrentDictionary<int, List<LowerLevelBlock>> s_Blocks { get; set; }
 
-        [DataMember]
+
         public const int MAX_TRANSACTION = 100;
 
         /*

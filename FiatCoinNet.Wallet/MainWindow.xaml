@@ -75,9 +75,9 @@
                             </StackPanel>
                         </Border>
                         <StackPanel Orientation="Horizontal" Grid.Row="2" >
-                            <Button Click="btnSend_Click" Content="{DynamicResource SEND_BUTTON_SEND}" Margin="10,0,10,0"></Button>
-                            <Button Click="btnClearAll_Click" Content="{DynamicResource SEND_BUTTON_CLEARALL}" Margin="10,0,10,0"></Button>
-                            <Button Click="btnAddPayee_Click" Content="{DynamicResource SEND_BUTTON_ADDPAYEE}" Margin="10,0,10,0"></Button>
+                            <Button Click="btnSend_Click" Content="{DynamicResource SEND_BUTTON_SEND}" Margin="10,0,10,5"></Button>
+                            <Button Click="btnClearAll_Click" Content="{DynamicResource SEND_BUTTON_CLEARALL}" Margin="10,0,10,5"></Button>
+                            <Button Click="btnAddPayee_Click" Content="{DynamicResource SEND_BUTTON_ADDPAYEE}" Margin="10,0,10,5"></Button>
                             <Label x:Name="labelSendBalanceAmo"  Content="{DynamicResource LABEL_BALANCE}" HorizontalAlignment="Right" ></Label>
                             <Label x:Name="labelSendBalanceAmount" HorizontalAlignment="Right"></Label>
                             <Label x:Name="labelSendBalanceFTC3" HorizontalAlignment="Right" >FTC</Label>

@@ -13,6 +13,8 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace FiatCoinNet.WalletGui
 {
@@ -35,6 +37,8 @@ namespace FiatCoinNet.WalletGui
         private Wallet m_Wallet;
 
         private List<PaymentTransaction> m_Transactions = new List<PaymentTransaction>();
+
+        private int NumberofPayee = 0;
 
         private const string baseUrl = "http://localhost:48701/"; 
         //private const string baseUrl = "http://fiatcoinet.azurewebsites.net/";
@@ -656,12 +660,13 @@ namespace FiatCoinNet.WalletGui
         private void btnAddPayee_Click(object sender, RoutedEventArgs e)
         {
             Grid dynamicGrid = new Grid();
-            dynamicGrid.ShowGridLines = true;
-            dynamicGrid.HorizontalAlignment = HorizontalAlignment.Left;
+            dynamicGrid.Height = 100;
+            dynamicGrid.VerticalAlignment = VerticalAlignment.Top;
 
             //Create Columns
             ColumnDefinition gridCol1 = new ColumnDefinition();
             ColumnDefinition gridCol2 = new ColumnDefinition();
+            gridCol1.Width = new GridLength(60);
             dynamicGrid.ColumnDefinitions.Add(gridCol1);
             dynamicGrid.ColumnDefinitions.Add(gridCol2);
 
@@ -669,30 +674,36 @@ namespace FiatCoinNet.WalletGui
             RowDefinition gridRow1 = new RowDefinition();
             RowDefinition gridRow2 = new RowDefinition();
             RowDefinition gridRow3 = new RowDefinition();
+            RowDefinition gridRow4 = new RowDefinition();
+            gridRow4.Height = new GridLength(5);
             dynamicGrid.RowDefinitions.Add(gridRow1);
             dynamicGrid.RowDefinitions.Add(gridRow2);
             dynamicGrid.RowDefinitions.Add(gridRow3);
+            dynamicGrid.RowDefinitions.Add(gridRow4);
 
             //First label
             TextBlock textblock_Payto = new TextBlock();
-            textblock_Payto.SetResourceReference(TextBlock.TextProperty, "SEND_BUTTON_PAYTO");
+            textblock_Payto.SetResourceReference(TextBlock.TextProperty, "SEND_LABEL_PAYTO");
             textblock_Payto.HorizontalAlignment = HorizontalAlignment.Left;
+            textblock_Payto.Margin = new Thickness(5);
             Grid.SetRow(textblock_Payto, 0);
             Grid.SetColumn(textblock_Payto, 0);
             dynamicGrid.Children.Add(textblock_Payto);
 
             //Second label
             TextBlock textblock_Label = new TextBlock();
-            textblock_Label.SetResourceReference(TextBlock.TextProperty, "SEND_BUTTON_LABEL");
+            textblock_Label.SetResourceReference(TextBlock.TextProperty, "SEND_LABEL_LABEL");
             textblock_Label.HorizontalAlignment = HorizontalAlignment.Left;
+            textblock_Label.Margin = new Thickness(5);
             Grid.SetRow(textblock_Label, 1);
             Grid.SetColumn(textblock_Label, 0);
             dynamicGrid.Children.Add(textblock_Label);
 
             //Third label
             TextBlock textblock_Amount = new TextBlock();
-            textblock_Amount.SetResourceReference(TextBlock.TextProperty, "SEND_BUTTON_AMOUNT");
+            textblock_Amount.SetResourceReference(TextBlock.TextProperty, "SEND_LABEL_AMOUNT");
             textblock_Amount.HorizontalAlignment = HorizontalAlignment.Left;
+            textblock_Amount.Margin = new Thickness(5);
             Grid.SetRow(textblock_Amount, 2);
             Grid.SetColumn(textblock_Amount, 0);
             dynamicGrid.Children.Add(textblock_Amount);
@@ -701,6 +712,12 @@ namespace FiatCoinNet.WalletGui
             TextBox textbox_Payto = new TextBox();
             textbox_Payto.Name = "Send_Payto";
             textbox_Payto.HorizontalAlignment = HorizontalAlignment.Left;
+            textbox_Payto.Width = 400;
+            textbox_Payto.Margin = new Thickness(5);
+            textbox_Payto.Foreground = Brushes.Gray;
+            textbox_Payto.SetResourceReference(TextBox.TextProperty, "SEND_LABEL_PAYTO_HINT");
+            textbox_Payto.GotKeyboardFocus += new KeyboardFocusChangedEventHandler(textbox_Payto_GotKeyboardFocus);
+            textbox_Payto.LostKeyboardFocus += new KeyboardFocusChangedEventHandler(textbox_Payto_LostKeyboardFocus);
             Grid.SetRow(textbox_Payto, 0);
             Grid.SetColumn(textbox_Payto, 1);
             dynamicGrid.Children.Add(textbox_Payto);
@@ -709,6 +726,12 @@ namespace FiatCoinNet.WalletGui
             TextBox textbox_Label = new TextBox();
             textbox_Label.Name = "Send_Label";
             textbox_Label.HorizontalAlignment = HorizontalAlignment.Left;
+            textbox_Label.Width = 400;
+            textbox_Label.Margin = new Thickness(5);
+            textbox_Label.Foreground = Brushes.Gray;
+            textbox_Label.SetResourceReference(TextBox.TextProperty, "SEND_LABEL_LABEL_HINT");
+            textbox_Label.GotKeyboardFocus += new KeyboardFocusChangedEventHandler(textbox_Label_GotKeyboardFocus);
+            textbox_Label.LostKeyboardFocus += new KeyboardFocusChangedEventHandler(textbox_Label_LostKeyboardFocus);
             Grid.SetRow(textbox_Label, 1);
             Grid.SetColumn(textbox_Label, 1);
             dynamicGrid.Children.Add(textbox_Label);
@@ -717,16 +740,92 @@ namespace FiatCoinNet.WalletGui
             TextBox textbox_Amount = new TextBox();
             textbox_Amount.Name = "Send_Amount";
             textbox_Amount.HorizontalAlignment = HorizontalAlignment.Left;
+            textbox_Amount.Width = 400;
+            textbox_Amount.Margin = new Thickness(5);
             Grid.SetRow(textbox_Amount, 2);
             Grid.SetColumn(textbox_Amount, 1);
             dynamicGrid.Children.Add(textbox_Amount);
 
+            //GridSplitter
+            GridSplitter splitter1 = new GridSplitter();
+            splitter1.HorizontalAlignment = HorizontalAlignment.Stretch;
+            Grid.SetRow(splitter1, 3);
+            Grid.SetColumn(splitter1, 0);
+            dynamicGrid.Children.Add(splitter1);
+            GridSplitter splitter2 = new GridSplitter();
+            splitter2.HorizontalAlignment = HorizontalAlignment.Stretch;
+            Grid.SetRow(splitter2, 3);
+            Grid.SetColumn(splitter1, 1);
+            dynamicGrid.Children.Add(splitter2);
+
+            Grid SendGrid = this.SendGrid;
+            RowDefinition sendgridRow = new RowDefinition();
+            sendgridRow.Height = new GridLength(100);
+            SendGrid.RowDefinitions.Add(sendgridRow);
+            Grid.SetRow(dynamicGrid, NumberofPayee);
+            NumberofPayee++;
+            SendGrid.Children.Add(dynamicGrid);
+
         }
+
+        #region hint text function
+        private void textbox_Payto_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is TextBox)
+            {
+                //If nothing has been entered yet.
+                if (((TextBox)sender).Foreground == Brushes.Gray)
+                {
+                    ((TextBox)sender).Text = "";
+                    ((TextBox)sender).Foreground = Brushes.Black;
+                }
+            }
+        }
+
+        private void textbox_Payto_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            //Make sure sender is the correct Control.
+            if (sender is TextBox)
+            {
+                //If nothing was entered, reset default text.
+                if (((TextBox)sender).Text.Trim().Equals(""))
+                {
+                    ((TextBox)sender).Foreground = Brushes.Gray;
+                    ((TextBox)sender).SetResourceReference(TextBox.TextProperty, "SEND_LABEL_PAYTO_HINT");
+                }
+            }
+        }
+
+        private void textbox_Label_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is TextBox)
+            {
+                if (((TextBox)sender).Foreground == Brushes.Gray)
+                {
+                    ((TextBox)sender).Text = "";
+                    ((TextBox)sender).Foreground = Brushes.Black;
+                }
+            }
+        }
+
+        private void textbox_Label_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is TextBox)
+            {
+                if (((TextBox)sender).Text.Trim().Equals(""))
+                {
+                    ((TextBox)sender).Foreground = Brushes.Gray;
+                    ((TextBox)sender).SetResourceReference(TextBox.TextProperty, "SEND_LABEL_LABEL_HINT");
+                }
+            }
+        }
+        #endregion
 
         //Generate a QR code for Uri
         private void btnShow_Click(object sender, RoutedEventArgs e)
         {
-
+            QRcode qrcode = new QRcode();
+            qrcode.Show();
         }
 
         private void btnRemove_Click(object sender, RoutedEventArgs e)

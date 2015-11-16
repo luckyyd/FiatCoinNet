@@ -195,6 +195,7 @@
     <Compile Include="Controllers\BankApiController.cs" />
     <Compile Include="Controllers\BankController.cs" />
     <Compile Include="Controllers\BlockChainController.cs" />
+    <Compile Include="Controllers\BlockController.cs" />
     <Compile Include="Controllers\DownloadController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Issuer\IssuerService.cs" />
@@ -206,9 +207,6 @@
     <Compile Include="DataAccess\Implementation.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Model.cs">
-      <DependentUpon>Model.dbml</DependentUpon>
     </Compile>
     <Compile Include="Models\Model.designer.cs">
       <AutoGen>True</AutoGen>
@@ -290,6 +288,7 @@
     <Content Include="Views\Principle\Index.cshtml" />
     <Content Include="Wallet.rar" />
     <Content Include="Views\BlockChain\Index.cshtml" />
+    <Content Include="Views\Block\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FiatCoinNet.Common\FiatCoinNet.Common.csproj">
