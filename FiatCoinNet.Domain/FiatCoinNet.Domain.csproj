@@ -52,6 +52,7 @@
     <Compile Include="Enum.cs" />
     <Compile Include="HigherLevelBlock.cs" />
     <Compile Include="LowerLevelBlock.cs" />
+    <Compile Include="PaymentRequest.cs" />
     <Compile Include="Requests\BaseRequest.cs" />
     <Compile Include="Requests\DirectPayRequest.cs" />
     <Compile Include="Issuer.cs" />

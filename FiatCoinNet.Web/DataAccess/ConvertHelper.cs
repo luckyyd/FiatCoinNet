@@ -22,9 +22,9 @@ namespace FiatCoinNetWeb.DataAccess
         public static PaymentTransaction FromRow(this PaymentTransaction trx, DataRow row)
         {
             trx.IssuerId = row.GetIntField("IssuerId");
-            trx.Source = row.GetStringField("Source");
-            trx.Dest = row.GetStringField("Dest");
-            trx.Amount = row.GetDecimalField("Amount");
+            trx.Source[0] = row.GetStringField("Source");
+            trx.Dest[0] = row.GetStringField("Dest");
+            trx.Amount[0] = row.GetDecimalField("Amount");
             trx.CurrencyCode = row.GetStringField("CurrencyCode");
             trx.MemoData = row.GetStringField("MemoData");
             return trx;

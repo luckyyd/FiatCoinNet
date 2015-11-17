@@ -116,9 +116,9 @@ namespace FiatCoinNet.WalletGui
             {
                 PaymentTransaction = new PaymentTransaction
                 {
-                    Source = baseAccount,
-                    Dest = Convert.ToBase64String(BitConverter.GetBytes(issuerId)) + fingerPrint,
-                    Amount = Convert.ToDecimal(f_ranAmount),
+                    Source = new List<string> { baseAccount },
+                    Dest = new List<string> { Convert.ToBase64String(BitConverter.GetBytes(issuerId)) + fingerPrint },
+                    Amount = new List<decimal> { Convert.ToDecimal(f_ranAmount) },
                     CurrencyCode = currencyCode,
                     MemoData = "Initial-balance"
                 }
@@ -270,9 +270,9 @@ namespace FiatCoinNet.WalletGui
             {
                 PaymentTransaction = new PaymentTransaction
                 {
-                    Source = payFrom.SelectedValue.ToString(),
-                    Dest = payTo.Text,
-                    Amount = Convert.ToDecimal(payAmount.Text),
+                    Source = new List<string> { payFrom.SelectedValue.ToString() },
+                    Dest = new List<string> { payTo.Text },
+                    Amount = new List<decimal> { Convert.ToDecimal(payAmount.Text) },
                     CurrencyCode = payCurrencyCode.Text,
                     MemoData = MemoData.Text,
                 }
@@ -540,9 +540,9 @@ namespace FiatCoinNet.WalletGui
             {
                 PaymentTransaction = new PaymentTransaction
                 {
-                    Source = exchangePayFrom.SelectedValue.ToString(),
-                    Dest = destAccount,
-                    Amount = exchangeAmount,
+                    Source = new List<string> { exchangePayFrom.SelectedValue.ToString() },
+                    Dest = new List<string> { destAccount },
+                    Amount = new List<decimal> { exchangeAmount },
                     CurrencyCode = exchangeCurrency.SelectedValue.ToString(),
                     MemoData = "Exchange from " + exchangeAccountCurrency.Text + " to " + exchangeCurrency.Text,
                 }
@@ -649,12 +649,182 @@ namespace FiatCoinNet.WalletGui
 
         private void btnSend_Click(object sender, RoutedEventArgs e)
         {
+            //collect request from UI and Pay!
+            List<PaymentRequest> paymentRequest = new List<PaymentRequest>();
+            decimal paymentSum = 0;
+
+            //TODO: check the input is valid
+
+            //fill the payment list
+            for(int i = 0; i < SendGrid.Children.Count; i++)
+            {
+                Grid grid = SendGrid.Children[i] as Grid;
+                TextBox payTo = grid.Children[3] as TextBox;
+                TextBox memo = grid.Children[4] as TextBox;
+                TextBox amount = grid.Children[5] as TextBox;
+                PaymentRequest py = new PaymentRequest();
+                py.PayTo = payTo.Text;
+                py.Memo = memo.Text;
+                py.Amount = Convert.ToDecimal(amount.Text);
+                paymentSum += py.Amount;
+                paymentRequest.Add(py);
+            }
+
+            //TODO: Add the transaction fee in request 
+            //need Issuer informations transactions size etc
+
+            //convert the payment request into transaction
+            SendRequestsToTransactions(paymentRequest, paymentSum);
+        }
+
+        private void SendRequestsToTransactions(List<PaymentRequest> paymentRequest, decimal paymentSum)
+        {
+            //TODO: Check the coin left is enough
+            //there is two more transactions: one is change, one is transaction fee
+
+            //Get your own wallet accounts
+            List<PaymentAccount> paymentAccount = new List<PaymentAccount>();
+            paymentAccount = m_Wallet.PaymentAccounts;
+            foreach (var account in paymentAccount)
+            {
+                account.Balance = GetAccountBalance(account.Address);
+            }
+            //Sort the account
+            IEnumerable<PaymentAccount> query = null;
+            query = from items in paymentAccount orderby items.Balance select items;
+
+            //We have two Issuers, thus each Issuer create its own transactions
+
+            //Create transaction for Issuer1
+            PaymentTransaction transactionforIssuer1 = new PaymentTransaction();
+            foreach (var payment in paymentRequest)
+            {
+                foreach (var item in query)
+                {
+                    transactionforIssuer1.Source.Add(item.Address);
+                    transactionforIssuer1.Dest.Add(payment.PayTo);
+                    transactionforIssuer1.CurrencyCode = "FTC";
+                    transactionforIssuer1.MemoData = payment.Memo;
+                    if (item.Balance < payment.Amount && item.Balance > 0 && item.IssuerId == 1010)
+                    {
+                        //Put this paymentAccount into paymentRequest (all in)
+                        transactionforIssuer1.Amount.Add(item.Balance);
+                        transactionforIssuer1.scriptSig.Add(CryptoHelper.Sign(item.PrivateKey, JsonHelper.Serialize(transactionforIssuer1.ToStr())));
+                        transactionforIssuer1.scriptSigPubkey.Add(item.PublicKey);
+                        payment.Amount -= item.Balance;
+                        item.Balance = 0;
+                    }
+                    else if(item.Balance == payment.Amount && item.Balance > 0 && item.IssuerId == 1010)
+                    {
+                        //Put this paymentAccount into paymentRequest (all in but stop query)
+                        transactionforIssuer1.Amount.Add(item.Balance);
+                        transactionforIssuer1.scriptSig.Add(CryptoHelper.Sign(item.PrivateKey, JsonHelper.Serialize(transactionforIssuer1.ToStr())));
+                        transactionforIssuer1.scriptSigPubkey.Add(item.PublicKey);
+                        payment.Amount -= item.Balance;
+                        item.Balance = 0;
+                        break;
+                    }
+                    else if(item.Balance > payment.Amount && item.Balance > 0 && item.IssuerId == 1010)
+                    {
+                        //Put this paymentAccount into payment and TODO: create an account
+                        transactionforIssuer1.Amount.Add(payment.Amount);
+                        transactionforIssuer1.scriptSig.Add(CryptoHelper.Sign(item.PrivateKey, JsonHelper.Serialize(transactionforIssuer1.ToStr())));
+                        transactionforIssuer1.scriptSigPubkey.Add(item.PublicKey);
+                        item.Balance -= payment.Amount;
+                        payment.Amount = 0;
+                        break;
+                    }
+                }
+            }
+
+            //Create transaction for Issuer2
+            PaymentTransaction transactionforIssuer2 = new PaymentTransaction();
+            foreach (var payment in paymentRequest)
+            {
+                foreach (var item in query)
+                {
+                    transactionforIssuer2.Source.Add(item.Address);
+                    transactionforIssuer2.Dest.Add(payment.PayTo);
+                    transactionforIssuer2.CurrencyCode = "FTC";
+                    transactionforIssuer2.MemoData = payment.Memo;
+                    if (item.Balance < payment.Amount && item.Balance > 0 && item.IssuerId == 1942)
+                    {
+                        //Put this paymentAccount into paymentRequest (all in)
+                        transactionforIssuer2.Amount.Add(item.Balance);
+                        transactionforIssuer2.scriptSig.Add(CryptoHelper.Sign(item.PrivateKey, JsonHelper.Serialize(transactionforIssuer2.ToStr())));
+                        transactionforIssuer2.scriptSigPubkey.Add(item.PublicKey);
+                        payment.Amount -= item.Balance;
+                        item.Balance = 0;
+                    }
+                    else if (item.Balance == payment.Amount && item.Balance > 0 && item.IssuerId == 1942)
+                    {
+                        //Put this paymentAccount into paymentRequest (all in but stop query)
+                        transactionforIssuer2.Amount.Add(item.Balance);
+                        transactionforIssuer2.scriptSig.Add(CryptoHelper.Sign(item.PrivateKey, JsonHelper.Serialize(transactionforIssuer2.ToStr())));
+                        transactionforIssuer2.scriptSigPubkey.Add(item.PublicKey);
+                        payment.Amount -= item.Balance;
+                        item.Balance = 0;
+                        break;
+                    }
+                    else if (item.Balance > payment.Amount && item.Balance > 0 && item.IssuerId == 1942)
+                    {
+                        //Put this paymentAccount into payment and TODO: create an account
+                        transactionforIssuer2.Amount.Add(payment.Amount);
+                        transactionforIssuer2.scriptSig.Add(CryptoHelper.Sign(item.PrivateKey, JsonHelper.Serialize(transactionforIssuer2.ToStr())));
+                        transactionforIssuer2.scriptSigPubkey.Add(item.PublicKey);
+                        item.Balance -= payment.Amount;
+                        payment.Amount = 0;
+                        break;
+                    }
+                }
+            }
+
+            //Publish the transaction
+            if(transactionforIssuer1.Source != null)
+            {
+                string requestUri = string.Format("issuer/api/{0}/accounts/pay", 1010);
+                DirectPayRequest payRequest = new DirectPayRequest();
+                payRequest.PaymentTransaction = transactionforIssuer1;
+                HttpContent content = new StringContent(JsonHelper.Serialize(payRequest));
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                HttpResponseMessage response = HttpClient.PostAsync(requestUri, content).Result;
+                try
+                {
+                    response.EnsureSuccessStatusCode();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("付款失败,错误码:" + ex);
+                    return;
+                }
+            }
+            if(transactionforIssuer2.Source != null)
+            {
+                string requestUri = string.Format("issuer/api/{0}/accounts/pay", 1942);
+                DirectPayRequest payRequest = new DirectPayRequest();
+                payRequest.PaymentTransaction = transactionforIssuer2;
+                HttpContent content = new StringContent(JsonHelper.Serialize(payRequest));
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                HttpResponseMessage response = HttpClient.PostAsync(requestUri, content).Result;
+                try
+                {
+                    response.EnsureSuccessStatusCode();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("付款失败,错误码:" + ex);
+                    return;
+                }
+            }
 
         }
 
         private void btnClearAll_Click(object sender, RoutedEventArgs e)
         {
-
+            if(SendGrid.Children.Count > 0)
+            {
+                SendGrid.Children.Clear();
+            }
         }
 
         private void btnAddPayee_Click(object sender, RoutedEventArgs e)
@@ -833,7 +1003,7 @@ namespace FiatCoinNet.WalletGui
 
         }
 
-        private void btnSelect_Click(object sender, RoutedEventArgs e)
+        private void btnTransactionfeeSelect_Click(object sender, RoutedEventArgs e)
         {
 
         }

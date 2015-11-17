@@ -78,17 +78,17 @@ namespace FiatCoinNet.Common.Tests
             // step2 create two transactions
             var trx1 = new PaymentTransaction
             {
-                Source = address,
-                Dest = address2,
-                Amount = 100.00m,
+                Source = new List<string> { address },
+                Dest = new List<string> { address2 },
+                Amount = new List<decimal> { 100.00m },
                 CurrencyCode = "USD",
                 MemoData = "surface"
             };
             var trx2 = new PaymentTransaction
             {
-                Source = address2,
-                Dest = address3,
-                Amount = 55.00m,
+                Source = new List<string> { address2 },
+                Dest = new List<string> { address3 },
+                Amount = new List<decimal> { 55.00m },
                 CurrencyCode = "USD",
                 MemoData = "surface"
             };
@@ -113,18 +113,18 @@ namespace FiatCoinNet.Common.Tests
             List<PaymentTransaction> txset = new List<PaymentTransaction>();
             txset.Add(new PaymentTransaction
             {
-                Amount = Convert.ToDecimal((new Random()).NextDouble()) * 20.00m,
+                Amount = new List<decimal> { Convert.ToDecimal((new Random()).NextDouble()) * 20.00m },
                 CurrencyCode = "USD",
-                Source = "address1",
-                Dest = "address2",
+                Source = new List<string> { "address1" },
+                Dest = new List<string> { "address2" },
                 MemoData = "TODO: RANDOM STRING"
             });
             txset.Add(new PaymentTransaction
             {
-                Amount = Convert.ToDecimal((new Random()).NextDouble()) * 20.00m,
+                Amount = new List<decimal> { Convert.ToDecimal((new Random()).NextDouble()) * 20.00m },
                 CurrencyCode = "USD",
-                Source = "address2",
-                Dest = "address3",
+                Source = new List<string> { "address2" },
+                Dest = new List<string> { "address3" },
                 MemoData = "TODO: RANDOM STRING"
             });
 
@@ -151,18 +151,18 @@ namespace FiatCoinNet.Common.Tests
             List<PaymentTransaction> txset = new List<PaymentTransaction>();
             txset.Add(new PaymentTransaction
             {
-                Amount = Convert.ToDecimal((new Random()).NextDouble()) * 20.00m,
+                Amount = new List<decimal> { Convert.ToDecimal((new Random()).NextDouble()) * 20.00m },
                 CurrencyCode = "USD",
-                Source = "address1",
-                Dest = "address2",
+                Source = new List<string> { "address1" },
+                Dest = new List<string> { "address2" },
                 MemoData = "TODO: RANDOM STRING"
             });
             txset.Add(new PaymentTransaction
             {
-                Amount = Convert.ToDecimal((new Random()).NextDouble()) * 20.00m,
+                Amount = new List<decimal> { Convert.ToDecimal((new Random()).NextDouble()) * 20.00m },
                 CurrencyCode = "USD",
-                Source = "address2",
-                Dest = "address3",
+                Source = new List<string> { "address2" },
+                Dest = new List<string> { "address3" },
                 MemoData = "TODO: RANDOM STRING"
             });
 

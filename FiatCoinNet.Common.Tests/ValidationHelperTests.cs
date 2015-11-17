@@ -50,9 +50,9 @@ namespace FiatCoinNet.Common.Tests
             {
                 PaymentTransaction = new PaymentTransaction
                 {
-                    Source = address,
-                    Dest = address2,
-                    Amount = 10.00m,
+                    Source = new List<string> { address },
+                    Dest = new List<string> { address2 },
+                    Amount = new List<decimal> { 10.00m },
                     CurrencyCode = "USD",
                     MemoData = "surface"
                 }
@@ -62,8 +62,8 @@ namespace FiatCoinNet.Common.Tests
             bool authorized = ValidationHelper.Validate(payRequest, publicKey);
             Assert.IsTrue(authorized);
 
-            payRequest.PaymentTransaction.Dest = "Bad man";
-            payRequest.PaymentTransaction.Amount = 10000.00m;
+            payRequest.PaymentTransaction.Dest.Add("Bad man");
+            payRequest.PaymentTransaction.Amount.Add(10000.00m);
             payRequest.Timestamp = DateTime.Parse("2016-01-01");
             authorized = ValidationHelper.Validate(payRequest, publicKey);
             Assert.IsFalse(authorized);

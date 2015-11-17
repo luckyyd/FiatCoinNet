@@ -108,9 +108,9 @@ namespace FiatCoinNet.Stress
                     {
                         PaymentTransaction = new PaymentTransaction
                         {
-                            Source = FiatCoinHelper.EncodeIssuerId(issuerId),
-                            Dest = account.Address,
-                            Amount = Convert.ToDecimal((new Random()).NextDouble()) * 100.00m,
+                            Source = new List<string> { FiatCoinHelper.EncodeIssuerId(issuerId) },
+                            Dest = new List<string> { account.Address },
+                            Amount = new List<decimal> { Convert.ToDecimal((new Random()).NextDouble()) * 100.00m },
                             CurrencyCode = "USD",
                             MemoData = "fund with CC"
                         }
@@ -130,20 +130,20 @@ namespace FiatCoinNet.Stress
             {
                 var transaction = new PaymentTransaction
                 {
-                    Amount = Convert.ToDecimal((new Random()).NextDouble()) * 20.00m,
+                    Amount = new List<decimal> { Convert.ToDecimal((new Random()).NextDouble()) * 20.00m },
                     CurrencyCode = "USD",
-                    Source = accounts[(new Random()).Next() % NumberOfAccounts].Address,
-                    Dest = accounts[(new Random()).Next() % NumberOfAccounts].Address,
+                    Source = new List<string> { accounts[(new Random()).Next() % NumberOfAccounts].Address },
+                    Dest = new List<string> { accounts[(new Random()).Next() % NumberOfAccounts].Address },
                     MemoData = "TODO: RANDOM STRING"
                 };
 
-                int issuerId = FiatCoinHelper.GetIssuerId(transaction.Source);
+                int issuerId = FiatCoinHelper.GetIssuerId(transaction.Source[0]);
                 string requestUri = string.Format("issuer/api/{0}/accounts/pay", issuerId);
                 var payRequest = new DirectPayRequest
                 {
                     PaymentTransaction = transaction
                 };
-                var account = accounts.FirstOrDefault<PaymentAccount>(acct => acct.Address == transaction.Source);
+                var account = accounts.FirstOrDefault<PaymentAccount>(acct => acct.Address == transaction.Source[0]);
                 payRequest.Signature = CryptoHelper.Sign(account.PrivateKey, payRequest.ToMessage());
                 HttpContent content = new StringContent(JsonHelper.Serialize(payRequest));
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/json");

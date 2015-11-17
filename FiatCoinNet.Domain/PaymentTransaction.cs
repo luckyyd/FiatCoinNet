@@ -12,22 +12,37 @@ namespace FiatCoinNet.Domain
     {
         #region Required Fields
         [DataMember]
-        public decimal Amount { get; set; }
+        public List<decimal> Amount { get; set; }
 
         [DataMember]
         public string CurrencyCode { get; set; }
 
         [DataMember]
-        public string Source { get; set; }
+        public List<string> scriptSig { get; set; }
 
         [DataMember]
-        public string Dest { get; set; }
+        public List<string> scriptSigPubkey { get; set; }
+
+        [DataMember]
+        public int In_counter { get; set; }
+
+        [DataMember]
+        public List<string> Source { get; set; }
+
+        [DataMember]
+        public List<string> scriptPubKey { get; set; }
+
+        [DataMember]
+        public int Out_counter { get; set; }
+
+        [DataMember]
+        public List<string> Dest { get; set; }
 
         [DataMember]
         public int IssuerId { get; set; }
 
         [DataMember]
-        public string PreviousTransactionHash { get; set; }
+        public List<string> PreviousTransactionHash { get; set; }
         #endregion
 
         #region Optional Fields
@@ -45,5 +60,19 @@ namespace FiatCoinNet.Domain
         [IgnoreDataMember]
         public string TransactionId { get; set; }
         #endregion
+
+        public string ToStr()
+        {
+            string str = "";
+            foreach (var input in Source)
+            {
+                str += input;
+            }
+            foreach (var output in Dest)
+            {
+                str += output;
+            }
+            return str;
+        }
     }
 }

@@ -1,0 +1,30 @@
+﻿@model IEnumerable<FiatCoinNetWeb.Models.LowerLevelBlock>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Home</h2>
+<h3>Welcome to FiatCoin Blockchain for Issuer</h3>
+
+<table border="1" width="100" style="text-align:center;border-collapse:collapse">
+    <tr>
+        <th>Height</th>
+        <th>Time</th>
+        <th>Hash</th>
+        <th>TransactionCounter</th>
+        <th>TotalSent</th>
+        <th>BlockSize</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@string.Format("0:g",item.Time)</td>
+            <td>@item.Hash</td>
+            <td>@item.TransactionCounter</td>
+            <td>@item.TotalSent</td>
+            <td>@item.BlockSize</td>
+        </tr>
+    }
+</table>

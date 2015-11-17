@@ -183,9 +183,31 @@ namespace FiatCoinNetWeb.Controllers
             return result;
         }
 
-        private bool VerifyTransaction(PaymentTransaction transaction)
+        public bool VerifyTransaction(PaymentTransaction transaction)
         {
-            throw new NotImplementedException();
+            //TODO: Verify the transaction
+            for(int i = 0; i < transaction.Amount.Count; i++)
+            {
+                //Step1: PayFrom provide the <sig><pubkey>
+                string scriptSig = transaction.scriptSig[i];
+                string scriptSigPubKey = transaction.scriptSigPubkey[i];
+                //Step2: Through trid trace last transaction scriptPubKey
+                string txid = transaction.PreviousTransactionHash[i];
+                //TODO: Find the transaction match txid and receive its pubKeyHash
+                string pubKeyHash = "";
+                //Step3: Verification script
+                if (CryptoHelper.Hash(JsonHelper.Serialize(scriptSigPubKey)) == pubKeyHash)
+                {
+                    //Step4: CheckSig
+                    
+                } 
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+
         }
     }
 }

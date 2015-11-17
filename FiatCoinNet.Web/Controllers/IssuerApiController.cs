@@ -108,44 +108,49 @@ namespace FiatCoinNetWeb.Controllers
         [Route("issuer/api/{issuerId}/accounts/pay")]
         public HttpResponseMessage DirectPay([FromUri]int issuerId, [FromBody]DirectPayRequest request)
         {
-            this.Validate(issuerId, request);
-
-            request.PaymentTransaction.IssuerId = issuerId;
-            int srcIssuerId = FiatCoinHelper.GetIssuerId(request.PaymentTransaction.Source);
-            int dstIssuerId = FiatCoinHelper.GetIssuerId(request.PaymentTransaction.Dest);
-
-            if (srcIssuerId != dstIssuerId)
+            //All transactions require Validation by Issuer first, then apply Pay to write in DB 
+            if(bankapi.bankService.issuerService.VerifyTransaction(request.PaymentTransaction) == true)
             {
-                string requestUri = string.Format("issuer/api/{0}/federation/pay", dstIssuerId);
-                var payRequest = new FederatedPayRequest
-                {
-                    PaymentTransaction = request.PaymentTransaction
-                };
-                var me = bankapi.bankService.bank.CertifiedIssuers.FirstOrDefault<Issuer>(i => i.Id == issuerId);
-                payRequest.Signature = CryptoHelper.Sign(me.PrivateKey, payRequest.ToMessage());
-                HttpContent content = new StringContent(JsonHelper.Serialize(payRequest));
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                HttpResponseMessage response = RestApiHelper.HttpClient.PostAsync(requestUri, content).Result;
-                response.EnsureSuccessStatusCode();
+                //Write transaction in DB
+                DataAccess.DataAccessor.FiatCoinRepository.AddTransaction(request.PaymentTransaction);
+                return Request.CreateResponse(HttpStatusCode.OK);
             }
-            DataAccess.DataAccessor.FiatCoinRepository.AddTransaction(request.PaymentTransaction);
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.NotAcceptable);
+            }
 
-            //CreateLowerLevelBlock(issuerId, request.PaymentTransaction);
+            //this.Validate(issuerId, request);
+            //request.PaymentTransaction.IssuerId = issuerId;
+            //int srcIssuerId = FiatCoinHelper.GetIssuerId(request.PaymentTransaction.Source);
+            //int dstIssuerId = FiatCoinHelper.GetIssuerId(request.PaymentTransaction.Dest);
 
-            return Request.CreateResponse(HttpStatusCode.OK);
+            //if (srcIssuerId != dstIssuerId)
+            //{
+            //    string requestUri = string.Format("issuer/api/{0}/federation/pay", dstIssuerId);
+            //    var payRequest = new FederatedPayRequest
+            //    {
+            //        PaymentTransaction = request.PaymentTransaction
+            //    };
+            //    var me = bankapi.bankService.bank.CertifiedIssuers.FirstOrDefault<Issuer>(i => i.Id == issuerId);
+            //    payRequest.Signature = CryptoHelper.Sign(me.PrivateKey, payRequest.ToMessage());
+            //    HttpContent content = new StringContent(JsonHelper.Serialize(payRequest));
+            //    content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            //    HttpResponseMessage response = RestApiHelper.HttpClient.PostAsync(requestUri, content).Result;
+            //    response.EnsureSuccessStatusCode();
+            //}
+            //return Request.CreateResponse(HttpStatusCode.OK);
         }
 
-        [HttpPost]
-        [Route("issuer/api/{issuerId}/federation/pay")]
-        public HttpResponseMessage FederatedPay([FromUri]int issuerId, [FromBody]FederatedPayRequest request)
-        {
-            this.Validate(issuerId, request);
-
-            request.PaymentTransaction.IssuerId = issuerId;
-            DataAccess.DataAccessor.FiatCoinRepository.AddTransaction(request.PaymentTransaction);
-
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
+        //[HttpPost]
+        //[Route("issuer/api/{issuerId}/federation/pay")]
+        //public HttpResponseMessage FederatedPay([FromUri]int issuerId, [FromBody]FederatedPayRequest request)
+        //{
+        //    this.Validate(issuerId, request);
+        //    request.PaymentTransaction.IssuerId = issuerId;
+        //    DataAccess.DataAccessor.FiatCoinRepository.AddTransaction(request.PaymentTransaction);
+        //    return Request.CreateResponse(HttpStatusCode.OK);
+        //}
 
         /// <summary>
         /// Fund
@@ -167,9 +172,22 @@ namespace FiatCoinNetWeb.Controllers
         #region Private Methods
         private static decimal CalculateBalance(List<PaymentTransaction> journal, string address)
         {
-            return
-                journal.Where(trx => trx.Dest == address).Sum(trx => trx.Amount) -
-                journal.Where(trx => trx.Source == address).Sum(trx => trx.Amount);
+            decimal balance = 0;
+            foreach (var payment in journal)
+            {
+                if (payment.Dest.Contains(address))
+                {
+                    balance += payment.Amount[payment.Dest.IndexOf(address)];
+                }
+                if (payment.Source.Contains(address))
+                {
+                    balance -= payment.Amount[payment.Source.IndexOf(address)];
+                }
+            }
+            return balance;
+            //return
+            //    journal.Where(trx => trx.Dest == address).Sum(trx => trx.Amount) -
+            //    journal.Where(trx => trx.Source == address).Sum(trx => trx.Amount);
         }
 
         private void Validate(int issuerId, BaseRequest baseReq = null)
@@ -204,13 +222,13 @@ namespace FiatCoinNetWeb.Controllers
             else if (baseReq is DirectPayRequest)
             {
                 var request = (DirectPayRequest)baseReq;
-                int srcIsserId = FiatCoinHelper.GetIssuerId(request.PaymentTransaction.Source);
+                int srcIsserId = FiatCoinHelper.GetIssuerId(request.PaymentTransaction.Source[0]);
                 if (srcIsserId != issuerId)
                 {
                     var message = string.Format("Source's issuer Id = {0}, but the request was sent to issuer Id = {1}", srcIsserId, issuerId);
                     throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest, message));
                 }
-                var account = DataAccess.DataAccessor.FiatCoinRepository.GetAccount(srcIsserId, request.PaymentTransaction.Source);
+                var account = DataAccess.DataAccessor.FiatCoinRepository.GetAccount(srcIsserId, request.PaymentTransaction.Source[0]);
                 if (account == null)
                 {
                     var message = string.Format("Account with address = {0} not found", request.PaymentTransaction.Source);
@@ -218,10 +236,10 @@ namespace FiatCoinNetWeb.Controllers
                 }
                 ValidateRequestor(request, account);
 
-                var transactions = DataAccess.DataAccessor.FiatCoinRepository.GetTransactions(srcIsserId, request.PaymentTransaction.Source);
-                var balance = CalculateBalance(transactions, request.PaymentTransaction.Source);
+                var transactions = DataAccess.DataAccessor.FiatCoinRepository.GetTransactions(srcIsserId, request.PaymentTransaction.Source[0]);
+                var balance = CalculateBalance(transactions, request.PaymentTransaction.Source[0]);
                 
-                if (request.PaymentTransaction.Amount > balance)
+                if (request.PaymentTransaction.Amount[0] > balance)
                 {
                     var message = string.Format("Insufficient funds, balance = {0}, to pay = {1}", balance, request.PaymentTransaction.Amount);
                     throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, message));
@@ -230,8 +248,8 @@ namespace FiatCoinNetWeb.Controllers
             else if (baseReq is FundRequest)
             {
                 var request = (FundRequest)baseReq;
-                int destIsserId = FiatCoinHelper.GetIssuerId(request.PaymentTransaction.Dest);
-                var account = DataAccess.DataAccessor.FiatCoinRepository.GetTransactions(destIsserId, request.PaymentTransaction.Dest);
+                int destIsserId = FiatCoinHelper.GetIssuerId(request.PaymentTransaction.Dest[0]);
+                var account = DataAccess.DataAccessor.FiatCoinRepository.GetTransactions(destIsserId, request.PaymentTransaction.Dest[0]);
                 if (account == null)
                 {
                     var message = string.Format("Account with address = {0} not found", request.PaymentTransaction.Dest);

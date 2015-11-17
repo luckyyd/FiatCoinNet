@@ -102,9 +102,9 @@ namespace FiatCoinNet.Common.Tests
                 PaymentTransaction = new PaymentTransaction
                 {
                     IssuerId = issuerId,
-                    Source = FiatCoinHelper.EncodeIssuerId(issuerId),
-                    Dest = address,
-                    Amount = 100.00m,
+                    Source = new List<string> { FiatCoinHelper.EncodeIssuerId(issuerId) },
+                    Dest = new List<string> { address },
+                    Amount = new List<decimal> { 100.00m },
                     CurrencyCode = "USD",
                     MemoData = "fund with CC"
                 }
@@ -137,9 +137,9 @@ namespace FiatCoinNet.Common.Tests
                 PaymentTransaction = new PaymentTransaction
                 {
                      IssuerId = issuerId,
-                     Source = address,
-                     Dest = address2,
-                     Amount = 10.00m,
+                     Source = new List<string> { address },
+                     Dest = new List<string> { address2 },
+                     Amount = new List<decimal> { 10.00m },
                      CurrencyCode = "USD",
                      MemoData = "surface"
                 }

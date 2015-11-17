@@ -34,9 +34,22 @@ namespace FiatCoinNet.Common
         
         public static decimal CalculateBalance(List<PaymentTransaction> journal, string address)
         {
-            return
-                journal.Where(trx => trx.Dest == address).Sum(trx => trx.Amount) -
-                journal.Where(trx => trx.Source == address).Sum(trx => trx.Amount);
+            decimal balance = 0;
+            foreach(var payment in journal)
+            {
+                if(payment.Dest.Contains(address))
+                {
+                    balance += payment.Amount[payment.Dest.IndexOf(address)];
+                }
+                if(payment.Source.Contains(address))
+                {
+                    balance -= payment.Amount[payment.Source.IndexOf(address)];
+                }
+            }
+            return balance;
+            //return
+            //    journal.Where(trx => trx.Dest == address).Sum(trx => trx.Amount) -
+            //    journal.Where(trx => trx.Source == address).Sum(trx => trx.Amount);
         }
 
         public static PaymentAccount GetIssuerAccountFromKeys(int issuerId, string publicKey, string privateKey)
