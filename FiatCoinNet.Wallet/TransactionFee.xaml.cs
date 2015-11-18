@@ -19,19 +19,26 @@ namespace FiatCoinNet.WalletGui
     /// </summary>
     public partial class TransactionFee : Window
     {
-        public TransactionFee()
+        public string transactionfee { get; set; }
+
+        public TransactionFee(string text)
         {
             InitializeComponent();
+            this.textBoxTransactionFee.Text = text;
+            transactionfee = text;
         }
 
         private void buttonOK_Click(object sender, RoutedEventArgs e)
         {
-
+            MainWindow mainwindow = (MainWindow)this.Owner;
+            mainwindow.textBoxTrasactionFee.Text = this.textBoxTransactionFee.Text;
             this.Close();
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
+        private void buttonCancel_Click(object sender, RoutedEventArgs e)
         {
+            MainWindow mainwindow = (MainWindow)this.Owner;
+            mainwindow.textBoxTrasactionFee.Text = transactionfee;
             this.Close();
         }
     }

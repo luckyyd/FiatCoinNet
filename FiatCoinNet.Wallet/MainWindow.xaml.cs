@@ -1005,7 +1005,10 @@ namespace FiatCoinNet.WalletGui
 
         private void btnTransactionfeeSelect_Click(object sender, RoutedEventArgs e)
         {
-
+            TransactionFee transaction = new TransactionFee(this.textBoxTrasactionFee.Text);
+            transaction.Owner = this;
+            transaction.Show();
+            textBoxTrasactionFee.Text = transaction.transactionfee;
         }
     }
 }
