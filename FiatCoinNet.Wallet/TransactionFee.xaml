@@ -7,9 +7,12 @@
         mc:Ignorable="d"
         Title="TransactionFee" Height="300" Width="300">
     <Grid>
-        <Button x:Name="button" Content="OK" HorizontalAlignment="Left" Margin="101,205,0,0" VerticalAlignment="Top" Width="75"/>
-        <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Margin="35,89,0,0" VerticalAlignment="Top"/>
-        <Slider x:Name="slider" HorizontalAlignment="Left" Margin="101,97,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="labelTransactionFee" Content="{DynamicResource SEND_LABEL_TRANSACTIONFEE}" HorizontalAlignment="Left" Margin="54,72,0,0" VerticalAlignment="Top" Height="25" Width="58"/>
+        <Slider x:Name="sliderTransactionFee" HorizontalAlignment="Left" Margin="164,76,0,0" VerticalAlignment="Top" Maximum="0.001"/>
+        <TextBox x:Name="textBoxTransactionFee" HorizontalAlignment="Left" Height="23" Margin="54,115,0,0" TextWrapping="Wrap" Text="{Binding ElementName=sliderTransactionFee, Path=Value, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="labelTransactionFeeUnit" Content="FTC" HorizontalAlignment="Left" Margin="188,114,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="buttonOK" Content="{DynamicResource SEND_BUTTON_OK}" HorizontalAlignment="Left" Margin="54,204,0,0" VerticalAlignment="Top" Width="75" Click="buttonOK_Click" />
+        <Button x:Name="button" Content="{DynamicResource SEND_BUTTON_CANCEL}" HorizontalAlignment="Left" Margin="164,204,0,0" VerticalAlignment="Top" Width="75" Click="button_Click"/>
 
     </Grid>
 </Window>

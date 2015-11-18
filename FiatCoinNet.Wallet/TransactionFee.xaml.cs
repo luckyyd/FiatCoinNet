@@ -23,5 +23,16 @@ namespace FiatCoinNet.WalletGui
         {
             InitializeComponent();
         }
+
+        private void buttonOK_Click(object sender, RoutedEventArgs e)
+        {
+
+            this.Close();
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }
