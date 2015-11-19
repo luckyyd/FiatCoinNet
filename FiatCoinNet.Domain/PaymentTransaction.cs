@@ -43,6 +43,9 @@ namespace FiatCoinNet.Domain
 
         [DataMember]
         public List<string> PreviousTransactionHash { get; set; }
+
+        [DataMember]
+        public List<int> PreviousTransactionIndex { get; set; }
         #endregion
 
         #region Optional Fields

@@ -108,17 +108,33 @@ namespace FiatCoinNetWeb.Controllers
         [Route("issuer/api/{issuerId}/accounts/pay")]
         public HttpResponseMessage DirectPay([FromUri]int issuerId, [FromBody]DirectPayRequest request)
         {
-            //All transactions require Validation by Issuer first, then apply Pay to write in DB 
-            if(bankapi.bankService.issuerService.VerifyTransaction(request.PaymentTransaction) == true)
+            //All transactions should be put in the pool first, then issuers validate and put in a block
+            if(issuerId == 1010)
             {
-                //Write transaction in DB
-                DataAccess.DataAccessor.FiatCoinRepository.AddTransaction(request.PaymentTransaction);
+                bankapi.bankService.issuerService.issuer1.s_PaymentPool.Enqueue(request.PaymentTransaction);
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            else if(issuerId == 1942)
+            {
+                bankapi.bankService.issuerService.issuer2.s_PaymentPool.Enqueue(request.PaymentTransaction);
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             else
             {
                 return Request.CreateResponse(HttpStatusCode.NotAcceptable);
             }
+            
+            //All transactions require Validation by Issuer first, then apply Pay to write in DB 
+            //if(bankapi.bankService.issuerService.VerifyTransaction(request.PaymentTransaction) == true)
+            //{
+            //    //Write transaction in DB
+            //    DataAccess.DataAccessor.FiatCoinRepository.AddTransaction(request.PaymentTransaction);
+            //    return Request.CreateResponse(HttpStatusCode.OK);
+            //}
+            //else
+            //{
+            //    return Request.CreateResponse(HttpStatusCode.NotAcceptable);
+            //}
 
             //this.Validate(issuerId, request);
             //request.PaymentTransaction.IssuerId = issuerId;

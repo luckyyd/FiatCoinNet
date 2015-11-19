@@ -70,10 +70,13 @@ namespace FiatCoinNetWeb.Controllers
             while(issuer1.s_PaymentPool.Count != 0 && block.TransactionCounter < MAX_TRANSACTION)
             {
                 PaymentTransaction transaction = issuer1.s_PaymentPool.Dequeue();
-                if(VerifyTransaction(transaction) == true)
+                if(VerifyTransaction(transaction, issuer1) == true)
                 {
                     block.TransactionSet.Add(transaction);
                     block.TransactionCounter++;
+
+                    //Write the verified transaction to DB
+                    DataAccess.DataAccessor.FiatCoinRepository.AddTransaction(transaction);
                 }
             }
             //Add the Merkle root
@@ -89,6 +92,9 @@ namespace FiatCoinNetWeb.Controllers
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             HttpResponseMessage response = RestApiHelper.HttpClient.PostAsync(requestUri, content).Result;
             response.EnsureSuccessStatusCode();
+
+            //Write the lowerlevelblock to DB
+            DataAccess.DataAccessor.FiatCoinRepository.AddLowerLevelBlock(block);
         }
 
         public void CreateLowerLevelBlockForIssuer2()
@@ -108,10 +114,13 @@ namespace FiatCoinNetWeb.Controllers
             while (issuer2.s_PaymentPool.Count != 0 && block.TransactionCounter < MAX_TRANSACTION)
             {
                 PaymentTransaction transaction = issuer2.s_PaymentPool.Dequeue();
-                if (VerifyTransaction(transaction) == true)
+                if (VerifyTransaction(transaction, issuer2) == true)
                 {
                     block.TransactionSet.Add(transaction);
                     block.TransactionCounter++;
+
+                    //Write the verified transaction to DB
+                    DataAccess.DataAccessor.FiatCoinRepository.AddTransaction(transaction);
                 }
             }
             //Add the Merkle root
@@ -127,6 +136,9 @@ namespace FiatCoinNetWeb.Controllers
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             HttpResponseMessage response = RestApiHelper.HttpClient.PostAsync(requestUri, content).Result;
             response.EnsureSuccessStatusCode();
+
+            //Write the lowerlevelblock to DB
+            DataAccess.DataAccessor.FiatCoinRepository.AddLowerLevelBlock(block);
         }
 
         private string ConstructMerkleTree(LowerLevelBlock block)
@@ -183,7 +195,7 @@ namespace FiatCoinNetWeb.Controllers
             return result;
         }
 
-        public bool VerifyTransaction(PaymentTransaction transaction)
+        public bool VerifyTransaction(PaymentTransaction transaction, Issuer issuer)
         {
             //TODO: Verify the transaction
             for(int i = 0; i < transaction.Amount.Count; i++)
@@ -193,13 +205,25 @@ namespace FiatCoinNetWeb.Controllers
                 string scriptSigPubKey = transaction.scriptSigPubkey[i];
                 //Step2: Through trid trace last transaction scriptPubKey
                 string txid = transaction.PreviousTransactionHash[i];
-                //TODO: Find the transaction match txid and receive its pubKeyHash
-                string pubKeyHash = "";
+                int txidIndex = transaction.PreviousTransactionIndex[i];
+                //Find the transaction match txid and receive its pubKeyHash
+                //traverse the blocks in the issuer
+                string pubkeyHash = "";
+                foreach (var block in issuer.s_Blocks)
+                {
+                    foreach (var trans in block.TransactionSet)
+                    {
+                        if(trans.TransactionId == txid)
+                        {
+                            pubkeyHash = trans.Dest[txidIndex];
+                        }
+                    }
+                }
                 //Step3: Verification script
-                if (CryptoHelper.Hash(JsonHelper.Serialize(scriptSigPubKey)) == pubKeyHash)
+                if (CryptoHelper.Hash(JsonHelper.Serialize(scriptSigPubKey)) == pubkeyHash)
                 {
                     //Step4: CheckSig
-                    
+                    //TODO: CheckSig
                 } 
                 else
                 {
@@ -207,7 +231,6 @@ namespace FiatCoinNetWeb.Controllers
                 }
             }
             return true;
-
         }
     }
 }

@@ -45,7 +45,10 @@ namespace FiatCoinNet.Domain
         public Queue<PaymentTransaction> s_PaymentPool { get; set; }
 
         [DataMember]
-        public ConcurrentDictionary<int, List<LowerLevelBlock>> s_Blocks { get; set; }
+        public List<LowerLevelBlock> s_Blocks { get; set; }
+
+        //[DataMember]
+        //public ConcurrentDictionary<int, List<LowerLevelBlock>> s_Blocks { get; set; }
 
 
         public const int MAX_TRANSACTION = 100;
@@ -62,7 +65,8 @@ namespace FiatCoinNet.Domain
             epoch = 60000;
             version = 1;
             PaymentAccounts = new List<PaymentAccount>();
-            s_Blocks = new ConcurrentDictionary<int, List<LowerLevelBlock>>();
+            //s_Blocks = new ConcurrentDictionary<int, List<LowerLevelBlock>>();
+            s_Blocks = new List<LowerLevelBlock>();
             s_PaymentPool = new Queue<PaymentTransaction>();
         }
 
@@ -76,7 +80,8 @@ namespace FiatCoinNet.Domain
             epoch = 60000;
             version = 1;
             PaymentAccounts = new List<PaymentAccount>();
-            s_Blocks = new ConcurrentDictionary<int, List<LowerLevelBlock>>();
+            //s_Blocks = new ConcurrentDictionary<int, List<LowerLevelBlock>>();
+            s_Blocks = new List<LowerLevelBlock>();
             s_PaymentPool = new Queue<PaymentTransaction>();
         }
 
