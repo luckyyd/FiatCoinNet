@@ -31,13 +31,14 @@ namespace FiatCoinNetWeb.DataAccess
 
         public HigherLevelBlock AddHigherLevelBlock(HigherLevelBlock newHigherLevelBlock)
         {
-            var result = QueryStoreProcedure("AddLowerLevelBlock", new Dictionary<string, object>
+            var result = QueryStoreProcedure("AddHigherLevelBlock", new Dictionary<string, object>
                                                         {
+                                                            {"@hash", newHigherLevelBlock.Hash },
                                                             {"@blockSize", newHigherLevelBlock.blockSize },
                                                             {"@blockHeader", newHigherLevelBlock.blockHeader },
+                                                            {"@LowerLevelBlockCounter", newHigherLevelBlock.LowerLevelBlockCounter },
                                                             {"@LowerLevelBlockSet", newHigherLevelBlock.LowerLevelBlockSet },
                                                             {"@period", newHigherLevelBlock.Period },
-                                                            {"@hash", newHigherLevelBlock.Hash },
                                                             {"@signature", newHigherLevelBlock.Signature },
                                                         });
             if (result.Tables[0].Rows.Count > 0)
@@ -52,11 +53,12 @@ namespace FiatCoinNetWeb.DataAccess
         {
             var result = QueryStoreProcedure("AddLowerLevelBlock", new Dictionary<string, object>
                                                         {
+                                                            {"@hash", newLowerLevelBlock.Hash },
                                                             {"@blockSize", newLowerLevelBlock.blockSize },
                                                             {"@blockHeader", newLowerLevelBlock.blockHeader },
                                                             {"@transactionCounter", newLowerLevelBlock.TransactionCounter },
                                                             {"@transactions", newLowerLevelBlock.TransactionSet },
-                                                            {"@period", newLowerLevelBlock.Period },
+                                                            {"@period", newLowerLevelBlock.Epoch },
                                                             {"@hash", newLowerLevelBlock.Hash },
                                                             {"@signature", newLowerLevelBlock.Signature },
                                                             {"@signatureToCertifyIssuer", newLowerLevelBlock.SignatureToCertifyIssuer },
@@ -73,17 +75,25 @@ namespace FiatCoinNetWeb.DataAccess
         {
             var result = QueryStoreProcedure("AddTransaction", new Dictionary<string, object>
                                                           {
-                                                              {"@issuerId", newTransaction.IssuerId},
-                                                              {"@source", newTransaction.Source},
-                                                              {"@dest", newTransaction.Dest},
+                                                              {"@transactionId", newTransaction.TransactionId},
                                                               {"@amount", newTransaction.Amount},
                                                               {"@currencyCode", newTransaction.CurrencyCode},
+                                                              {"@scriptSig", newTransaction.scriptSig},
+                                                              {"@scriptSigPubKey", newTransaction.scriptSigPubkey},
+                                                              {"@in_counter", newTransaction.In_counter},
+                                                              {"@scriptPubKey", newTransaction.scriptPubKey},
+                                                              {"@out_counter", newTransaction.Out_counter},
+                                                              {"@source", newTransaction.Source},
+                                                              {"@dest", newTransaction.Dest},
+                                                              {"@issuerId", newTransaction.IssuerId},
+                                                              {"@PreviousTransactionHash", newTransaction.PreviousTransactionHash},
+                                                              {"@PreviousTransactionIndex", newTransaction.PreviousTransactionIndex},
                                                               {"@memoData", newTransaction.MemoData},
                                                           });
             if (result.Tables[0].Rows.Count > 0)
             {
-                var acct = new PaymentTransaction().FromRow(result.Tables[0].Rows[0]);
-                return acct;
+                var trans = new PaymentTransaction().FromRow(result.Tables[0].Rows[0]);
+                return trans;
             }
             return null;
         }

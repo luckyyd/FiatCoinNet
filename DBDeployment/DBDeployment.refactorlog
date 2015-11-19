@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="133392d0-3269-47a2-9842-389391ebaaca" ChangeDateTime="11/19/2015 06:59:00">
+    <Property Name="ElementName" Value="[dbo].[Transactions].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Transactions]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="TransactionId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2e3466cd-c9bc-4510-a98f-cee989e3671e" ChangeDateTime="11/19/2015 07:19:13">
+    <Property Name="ElementName" Value="[dbo].[HigherLevelBlock].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[HigherLevelBlock]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Hash" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="597d985d-9681-4943-94d2-685f7ba58bcc" ChangeDateTime="11/19/2015 07:23:45">
+    <Property Name="ElementName" Value="[dbo].[LowerLevelBlock].[Period]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[LowerLevelBlock]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="Epoch" />
+  </Operation>
+</Operations>

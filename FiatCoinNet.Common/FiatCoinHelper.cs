@@ -111,19 +111,19 @@ namespace FiatCoinNet.Common
         /// <summary>
         /// Create LowerLevelBlock
         /// </summary>
-        /// <param name="period"></param>
+        /// <param name="epoch"></param>
         /// <param name="hashPrev"></param>
         /// <param name="txset"></param>
         /// <param name="privateKey"></param>
         /// <param name="issuerPublicKey"></param>
         /// <returns></returns>
-        public static LowerLevelBlock CreateLowerLevelBlock(long period, string hashPrev, List<PaymentTransaction> txset, string issuerPrivateKey, string signatureToCertifyIssuer)
+        public static LowerLevelBlock CreateLowerLevelBlock(long epoch, string hashPrev, List<PaymentTransaction> txset, string issuerPrivateKey, string signatureToCertifyIssuer)
         {
             string hash = CryptoHelper.Hash(JsonHelper.Serialize(txset)); //TODO(foamliu):fix it.
 
             return new LowerLevelBlock
             {
-                Period = period,
+                Epoch = epoch,
                 Hash = hash,
                 TransactionSet = txset,
                 Signature = CryptoHelper.Sign(issuerPrivateKey, hash),

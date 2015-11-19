@@ -797,6 +797,7 @@ namespace FiatCoinNet.WalletGui
                     MessageBox.Show("付款失败,错误码:" + ex);
                     return;
                 }
+                MessageBox.Show("付款请求发送成功,等待Issuer验证");
             }
             if(transactionforIssuer2.Source != null)
             {
@@ -815,6 +816,7 @@ namespace FiatCoinNet.WalletGui
                     MessageBox.Show("付款失败,错误码:" + ex);
                     return;
                 }
+                MessageBox.Show("付款请求发送成功,等待Issuer验证");
             }
 
         }

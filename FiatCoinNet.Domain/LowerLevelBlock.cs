@@ -31,7 +31,7 @@ namespace FiatCoinNet.Domain
         //Above are included in bitcoin official doc
 
         [DataMember]
-        public long Period { get; set; }
+        public long Epoch { get; set; }
 
         [DataMember]
         public string Signature { get; set; }

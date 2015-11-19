@@ -72,8 +72,15 @@
     <Build Include="StoredProcedure\GetAccounts.sql" />
     <Build Include="StoredProcedure\GetTransactions.sql" />
     <Build Include="StoredProcedure\Cleanup.sql" />
+    <Build Include="Table\Transactions.sql" />
+    <Build Include="Table\HigherLevelBlock.sql" />
+    <Build Include="StoredProcedure\AddLowerLevelBlock.sql" />
+    <Build Include="StoredProcedure\AddHigherLevelBlock.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DBDeployment.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="DBDeployment.refactorlog" />
   </ItemGroup>
 </Project>
