@@ -1108,5 +1108,24 @@ namespace FiatCoinNet.WalletGui
             this.receiveAmount.Text = "";
             this.receiveMessage.Text = "";
         }
+
+        private void dataGridReceiveHistory_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            PaymentAccount account = dataGridReceiveHistory.SelectedItem as PaymentAccount;
+            QRcode qrcode = new QRcode(account);
+            qrcode.Show();
+        }
+
+        private void btnShowQRpage_Click(object sender, RoutedEventArgs e)
+        {
+            if(dataGridReceiveHistory.SelectedItem != null)
+            {
+                PaymentAccount account = dataGridReceiveHistory.SelectedItem as PaymentAccount;
+                QRcode qrcode = new QRcode(account);
+                qrcode.Show();
+            }
+        }
+
+        
     }
 }
