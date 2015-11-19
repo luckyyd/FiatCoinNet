@@ -55,6 +55,14 @@ namespace FiatCoinNet.Domain
 
         #endregion
 
+        public string ReceiveLabel { get; set; }
+
+        public string ReceiveMessage { get; set; }
+
+        public decimal ReceiveAmount { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
         public PaymentAccount Mask()
         {
             return new PaymentAccount

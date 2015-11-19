@@ -27,6 +27,14 @@ namespace FiatCoinNet.WalletGui
         转入 = 2
 
     }
+    public enum CurrencyType
+    {
+        FTC = 0,
+
+        mFTC = 1,
+
+        μFTC = 2
+    }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -37,6 +45,9 @@ namespace FiatCoinNet.WalletGui
         private Wallet m_Wallet;
 
         private List<PaymentTransaction> m_Transactions = new List<PaymentTransaction>();
+
+        //Only store new created account for display in dataGridReceiveHistory
+        private List<PaymentAccount> m_Accounts = new List<PaymentAccount>();
 
         private int NumberofPayee = 0;
 
@@ -56,6 +67,7 @@ namespace FiatCoinNet.WalletGui
             BindTransactionType();
             BindAddressForExchange();
             BindCurrencyCodeForExchange();
+            BindIssuerAndCurrencyCodeForReceive();
         }
 
 
@@ -179,7 +191,7 @@ namespace FiatCoinNet.WalletGui
                         GetAccountBalances();
                         this.UpdateAddressDataGrid();
                         comboBoxIssuer.SelectedIndex = 0;
-                        comboBoxCurrencyCode.SelectedValue = "USD";
+                        comboBoxCurrencyCode.SelectedValue = "FTC";
                         break;
                     case "Pay":
                         payFrom.Items.Refresh();
@@ -329,6 +341,20 @@ namespace FiatCoinNet.WalletGui
             }
         }
 
+        private void UpdateReceiveHistoryDataGrid()
+        {
+            if (null == m_Accounts) return;
+            try
+            {
+                dataGridReceiveHistory.ItemsSource = m_Accounts;
+                dataGridReceiveHistory.Items.Refresh();
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText("error.log", ex.ToString());
+            }
+        }
+
         private void BindCompanyNameAndCurrencyCode()
         {
             //load issuer combo box
@@ -372,6 +398,21 @@ namespace FiatCoinNet.WalletGui
         private void BindTransactionType()
         {
             comboBoxTransactionType.ItemsSource = Enum.GetNames(typeof(TransactionType)).ToList();
+        }
+
+        private void BindIssuerAndCurrencyCodeForReceive()
+        {
+            //load issuer combo box
+            string requestUri = "certifier/api/issuers";
+            HttpResponseMessage response = HttpClient.GetAsync(requestUri).Result;
+            response.EnsureSuccessStatusCode();
+            List<Issuer> issuers = response.Content.ReadAsAsync<List<Issuer>>().Result;
+            comboBoxReceiveIssuer.ItemsSource = issuers;
+            comboBoxReceiveIssuer.SelectedValuePath = "Id";
+            comboBoxReceiveIssuer.DisplayMemberPath = "Name";
+            //load currency combo box
+            receiveCurrency.ItemsSource = Enum.GetNames(typeof(CurrencyType)).ToList();
+            receiveCurrency.SelectedIndex = 0;
         }
 
         private void LoadAddresses()
@@ -640,11 +681,6 @@ namespace FiatCoinNet.WalletGui
             HttpResponseMessage response = HttpClient.PostAsync(requestUri, content).Result;
             decimal balance = response.Content.ReadAsAsync<PaymentAccount>().Result.Balance;
             return balance;
-        }
-
-        private void receiveCurrency_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            
         }
 
         private void btnSend_Click(object sender, RoutedEventArgs e)
@@ -993,16 +1029,69 @@ namespace FiatCoinNet.WalletGui
         }
         #endregion
 
-        //Generate a QR code for Uri
+        //Create a new account & Generate a QR code for Uri
         private void btnShow_Click(object sender, RoutedEventArgs e)
         {
-            QRcode qrcode = new QRcode();
+            //Step1: Add a new address to my Wallet
+            string privateKey;
+            string publicKey;
+            CryptoHelper.GenerateKeyPair(out privateKey, out publicKey);
+
+            string fingerPrint = CryptoHelper.Hash(publicKey);
+            int issuerId = 0;
+            try
+            {
+                issuerId = (int)comboBoxReceiveIssuer.SelectedValue;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("请选择开户银行", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var account = new PaymentAccount
+            {
+                Address = FiatCoinHelper.ToAddress(issuerId, fingerPrint),
+                CurrencyCode = "FTC",
+                Balance = 0.00m,
+                PublicKey = publicKey,
+                PrivateKey = null,
+                ReceiveLabel = this.receiveLabel.Text,
+                ReceiveAmount = Convert.ToDecimal(this.receiveAmount.Text),
+                ReceiveMessage = this.receiveMessage.Text,
+                CreateDate = System.DateTime.Now
+            };
+
+            // register
+            string requestUri = string.Format("issuer/api/{0}/accounts/register", issuerId);
+            var registerRequest = new RegisterRequest
+            {
+                PaymentAccount = account.Mask()
+            };
+            HttpContent content = new StringContent(JsonHelper.Serialize(registerRequest));
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            HttpResponseMessage response = HttpClient.PostAsync(requestUri, content).Result;
+            response.EnsureSuccessStatusCode();
+
+            account.PrivateKey = privateKey;
+            this.m_Wallet.PaymentAccounts.Add(account);
+            this.m_Accounts.Add(account);
+
+            //Add new item in the list
+            this.UpdateReceiveHistoryDataGrid();
+            this.Save();
+
+            //Pass the account info to QRcode page
+            //Show the QRcode for pay
+            QRcode qrcode = new QRcode(account);
             qrcode.Show();
         }
 
         private void btnRemove_Click(object sender, RoutedEventArgs e)
         {
-
+            m_Accounts.Clear();
+            //dataGridReceiveHistory.ItemsSource = null;
+            dataGridReceiveHistory.Items.Refresh();
         }
 
         private void btnTransactionfeeSelect_Click(object sender, RoutedEventArgs e)
@@ -1011,6 +1100,13 @@ namespace FiatCoinNet.WalletGui
             transaction.Owner = this;
             transaction.Show();
             textBoxTrasactionFee.Text = transaction.transactionfee;
+        }
+
+        private void btnClear_Click(object sender, RoutedEventArgs e)
+        {
+            this.receiveLabel.Text = "";
+            this.receiveAmount.Text = "";
+            this.receiveMessage.Text = "";
         }
     }
 }

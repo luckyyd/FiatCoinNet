@@ -42,16 +42,28 @@
     <s:String x:Key="SEND_LABEL_PAYTO_HINT">请输入账户地址,(例如)</s:String>
     <s:String x:Key="SEND_LABEL_LABEL_HINT">为这个地址输入一个标签</s:String>
 
-    <s:String x:Key="RECEIVE_TEXTBLOCK_NOTE">使用此表单请求付款,所有字段都是可选项:</s:String>
+    <s:String x:Key="RECEIVE_LABEL_ISSUER">收款账户银行:</s:String>
+    <s:String x:Key="RECEIVE_TEXTBLOCK_NOTE">使用此表单请求付款,以下字段都是可选项:</s:String>
     <s:String x:Key="RECEIVE_TEXTBLOCK_LABEL">标签:</s:String>
     <s:String x:Key="RECEIVE_TEXTBLOCK_AMOUNT">总额:</s:String>
     <s:String x:Key="RECEIVE_TEXTBLOCK_MESSAGE">消息:</s:String>
     <s:String x:Key="RECEIVE_BUTTON_SHOW">显示</s:String>
     <s:String x:Key="RECEIVE_BUTTON_REMOVE">移除</s:String>
+    <s:String x:Key="RECEIVE_BUTTON_PAYREQUEST">请求付款</s:String>
+    <s:String x:Key="RECEIVE_BUTTON_CLEAR">清除</s:String>
 
     <s:String x:Key="RECEIVE_TEXTBLOCK_QRINFO">付款信息</s:String>
     <s:String x:Key="RECEIVE_TEXTBLOCK_QRURI">URI:</s:String>
     <s:String x:Key="RECEIVE_TEXTBLOCK_QRADDRESS">地址:</s:String>
+    <s:String x:Key="RECEIVE_TEXTBLOCK_QRAMOUNT">金额:</s:String>
+    <s:String x:Key="RECEIVE_TEXTBLOCK_QRLABEL">标签:</s:String>
+    <s:String x:Key="RECEIVE_TEXTBLOCK_QRMESSAGE">消息:</s:String>
+    <s:String x:Key="RECEIVE_BUTTON_QRSAVEPIC">保存图片</s:String>
+
+    <s:String x:Key="RECEIVE_GRID_DATE">日期</s:String>
+    <s:String x:Key="RECEIVE_GRID_LABEL">标签</s:String>
+    <s:String x:Key="RECEIVE_GRID_MESSAGE">消息</s:String>
+    <s:String x:Key="RECEIVE_GRID_AMOUNT">金额(FTC)</s:String>
 
     <s:String x:Key="LABEL_ISSUER">开户行</s:String>
     <s:String x:Key="LABEL_CURRENCY">货币代码</s:String>

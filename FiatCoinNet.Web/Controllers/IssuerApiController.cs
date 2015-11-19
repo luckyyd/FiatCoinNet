@@ -216,7 +216,7 @@ namespace FiatCoinNetWeb.Controllers
                 if (account == null)
                 {
                     var message = string.Format("Account with address = {0} not found", request.Address);
-                    throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
+                    //throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.NotFound, message));
                 }
             }
             else if (baseReq is RegisterRequest)
