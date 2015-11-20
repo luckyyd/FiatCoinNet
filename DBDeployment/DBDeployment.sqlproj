@@ -73,7 +73,9 @@
     <Build Include="StoredProcedure\GetTransactions.sql" />
     <Build Include="StoredProcedure\Cleanup.sql" />
     <Build Include="Table\Transactions.sql" />
-    <Build Include="Table\HigherLevelBlock.sql" />
+    <Build Include="Table\HigherLevelBlock.sql">
+      <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
+    </Build>
     <Build Include="StoredProcedure\AddLowerLevelBlock.sql" />
     <Build Include="StoredProcedure\AddHigherLevelBlock.sql" />
   </ItemGroup>
